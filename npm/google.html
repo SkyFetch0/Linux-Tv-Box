@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electron App - Google</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+        webview {
+            width: 100%;
+            height: 100%;
+        }
+        
+    </style>
+<style>
+    body {
+        overflow: hidden;
+    }
+</style>
+</head>
+<body>
+    <webview id="googleWebview" useragent="Mozilla/5.0 (Linux; Android 9; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36" src="https://www.google.com"></webview>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+    <script>
+        var webview = document.getElementById('googleWebview');
+        webview.addEventListener('dom-ready', function () {
+            function injectCSS(cssFilePath) {
+    fetch(cssFilePath)
+        .then(response => response.text())
+        .then(cssContent => {
+            
+            const cssLines = cssContent.split('\n');
+
+            
+            cssLines.forEach(line => {
+                if (line.trim() !== '') { 
+                    webview.insertCSS(line.trim());
+                }
+            });
+        })
+        .catch(error => {
+            console.error('CSS dosyası yüklenirken bir hata oluştu:', error);
+        });
+}
+
+
+    injectCSS('./google.css');
+        });
+    
+    </script>
+ <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const webview = document.getElementById('googleWebview');
+        webview.addEventListener('did-finish-load', () => {
+            webview.focus();
+            console.log("Ffocus ok");
+        });
+    });
+</script>
+</body>
+</html>

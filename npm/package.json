@@ -1,0 +1,14 @@
+{
+  "name": "npm",
+  "version": "1.0.0",
+  "description": "Linuxbox",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^31.1.0"
+  }
+}
