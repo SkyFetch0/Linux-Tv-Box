@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube TV</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">YouTube TV</h1>
+        <div id="player"></div>
+        <input type="text" id="search" placeholder="Search for videos">
+        <button onclick="searchVideos()">Search</button>
+        <ul id="results"></ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        let isFullScreen = false;
+
+        // YouTube IFrame API ready function
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '360',
+                width: '640',
+                videoId: '',
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        // Player ready event handler
+        function onPlayerReady(event) {
+            // Player is ready
+        }
+
+        // Player state change event handler
+        function onPlayerStateChange(event) {
+            // Handle player state changes
+        }
+
+        function searchVideos() {
+            const query = $('#search').val();
+            const apiKey = 'AIzaSyBf0SqgM2ZUA7c-lbHE9YP-EHDx1KOc0GE'; // Your YouTube Data API Key
+
+            $.get(`https://www.googleapis.com/youtube/v3/search`, {
+                part: 'snippet',
+                q: query,
+                type: 'video',
+                key: apiKey
+            }, function(data) {
+                $('#results').empty();
+                data.items.forEach(item => {
+                    $('#results').append(`
+                        <li>
+                            <img src="${item.snippet.thumbnails.default.url}" alt="${item.snippet.title}" onclick="playVideo('${item.id.videoId}')">
+                            <span>${item.snippet.title}</span>
+                        </li>
+                    `);
+                });
+            });
+        }
+
+        function playVideo(videoId) {
+            player.loadVideoById(videoId);
+        }
+
+        function toggleFullScreen() {
+            const playerElement = document.getElementById('player');
+            if (!isFullScreen) {
+                if (playerElement.requestFullscreen) {
+                    playerElement.requestFullscreen();
+                } else if (playerElement.mozRequestFullScreen) { // Firefox
+                    playerElement.mozRequestFullScreen();
+                } else if (playerElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    playerElement.webkitRequestFullscreen();
+                } else if (playerElement.msRequestFullscreen) { // IE/Edge
+                    playerElement.msRequestFullscreen();
+                }
+                isFullScreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { // Firefox
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { // IE/Edge
+                    document.msExitFullscreen();
+                }
+                isFullScreen = false;
+            }
+        }
+
+        function forwardVideo() {
+            const currentTime = player.getCurrentTime();
+            player.seekTo(currentTime + 10, true); // ileri sarma için +10 saniye ekle
+        }
+
+        function rewindVideo() {
+            const currentTime = player.getCurrentTime();
+            player.seekTo(currentTime - 10, true); // geri sarma için -10 saniye ekle
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'v') {
+                toggleFullScreen();
+            } else if (event.key === 'n') {
+                forwardVideo();
+            } else if (event.key === 'b') {
+                rewindVideo();
+            }
+        });
+    </script>
+</body>
+</html>

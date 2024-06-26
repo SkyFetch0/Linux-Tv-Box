@@ -1,0 +1,70 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux TV Box Controller</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">Linux TV Box Controller</h1>
+        <div class="text-center">
+            <button class="btn btn-primary" style="margin-right: 12px; width: 72px; height: 64px; font-size: 32px;" onclick="sendAjax('E')">E</button>
+
+            <button class="btn btn-primary" style="margin-right: 10px;" onclick="sendAjax('up')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/>
+                </svg>
+            </button>
+            <button class="btn btn-primary" style="width: 72px; height: 64px; font-size: 24px;" onclick="sendAjax('Back')">Back</button>
+
+            <br>
+            
+            
+            <button class="btn btn-primary m-1" onclick="sendAjax('left')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                  </svg>
+            </button>
+            <div class="btn btn-primary rounded-circle m-1 p-3" style="width: 80px; height: 80px; font-size: 30px;" onclick="sendAjax('Enter')"><span>OK</span></div>
+            
+            <button class="btn btn-primary m-1" onclick="sendAjax('right')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                  </svg>
+            </button><br>
+            <button class="btn btn-primary" style=" margin-right: 12px; width: 72px; height: 64px; font-size: 24px;" onclick="sendAjax('Back')">Back</button>
+
+            <button class="btn btn-primary" style="margin-right:10px;" onclick="sendAjax('down')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"/>
+                  </svg>
+            </button>
+            <button class="btn btn-primary" style=" width: 72px; height: 64px; font-size: 24px;" onclick="sendAjax('Exit')">Exit</button>
+
+        </div>
+       
+    </div>
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function sendAjax(button_value) {
+            $.ajax({
+                type: 'POST',
+                url: '/ajax',
+                data: {'button_value': button_value},
+                success: function(response) {
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
