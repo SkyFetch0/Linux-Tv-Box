@@ -1,11 +1,12 @@
 # app.py
 
 from flask import Flask, render_template, request
-import keyboard  
-import pydirectinput
-
+import keyboard
+from pynput.mouse import Controller
 
 app = Flask(__name__)
+
+mouse = Controller()
 
 @app.route('/')
 def index():
@@ -32,20 +33,18 @@ def ajax():
     elif data == "Back":
         keyboard.press_and_release('backspace')
     elif data == "Exit":
-        keyboard.press_and_release('')
+        keyboard.press_and_release('delete')  # Değiştirilmiş
     print(data)
     
     return "Başarılı bir şekilde alındı!"
 
 @app.route('/mouse')
-def mouse():
+def mouse_page():
     return render_template('mouse.html')
-
 
 @app.route('/keyboard_data', methods=["POST"])
 def keyboard_data():
     content = request.form["content"]
-
 
 @app.route('/move_mouse', methods=['POST'])
 def move_mouse():
@@ -55,7 +54,9 @@ def move_mouse():
     x_movement = int(round(x_movement))
     y_movement = int(round(y_movement))
 
-    pydirectinput.moveRel(x_movement, y_movement)
+    current_position = mouse.position
+    new_position = (current_position[0] + x_movement, current_position[1] + y_movement)
+    mouse.position = new_position
 
     return "Başarılı bir şekilde alındı!"
 
