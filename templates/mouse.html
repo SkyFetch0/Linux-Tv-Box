@@ -3,104 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouse Control</title>
+    <title>Modern Mouse Control</title>
     <style>
-        #touchpad {
-            width: 300px;
-            height: 300px; 
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            position: relative;
-            touch-action: none; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        body {
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            background: #2a2a2a;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .touchpad-container {
+            margin-bottom: 2rem;
+        }
+
+        #touchpad {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(145deg, #232323, #2d2d2d);
+            border-radius: 15px;
+            position: relative;
+            touch-action: none;
+            margin-bottom: 1rem;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
         #thumb {
-            width: 20px;
-            height: 20px;
-            background-color: #333;
+            width: 30px;
+            height: 30px;
+            background: #007AFF;
             border-radius: 50%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            touch-action: none; 
+            touch-action: none;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.5);
+            transition: box-shadow 0.2s;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mouse-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: #007AFF;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .mouse-btn:active {
+            transform: scale(0.95);
+            background: #0056b3;
+        }
+
+        .keyboard-container {
+            background: #333;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        #keyboard {
+            width: 100%;
+            height: 100px;
+            background: #404040;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: white;
+            resize: none;
+            font-size: 1rem;
+        }
+
+        #keyboard:focus {
+            outline: 2px solid #007AFF;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #007AFF;
         }
     </style>
 </head>
 <body>
-    <div class="main">
-    <div id="touchpad">
-        <div id="thumb"></div>
-    </div>
-    <div class="keyboard">
-        <label for="keyboard">Keyboard</label><br>
-        <textarea name="keyboard" id="keyboard"></textarea>
-    </div>
-</div>
+    <div class="container">
+        <h1 class="title">Mouse Control</h1>
+        
+        <div class="touchpad-container">
+            <div id="touchpad">
+                <div id="thumb"></div>
+            </div>
+        </div>
 
-<script>
-    const keyboard = document.getElementById('keyboard');
-    function sendKeyboard(content) {
-            fetch('/keyboard_data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `content=${content}`
-            });
-        }
-    keyboard.addEventListener('input', function(event) {
-        const textContent = keyboard.value;
-        console.log('Textarea içeriği:', textContent);
-        sendKeyboard(textContent);
-    });
-</script>
+        <div class="buttons-container">
+            <button class="mouse-btn" id="leftClick">Left Click</button>
+            <button class="mouse-btn" id="rightClick">Right Click</button>
+        </div>
+
+        <div class="keyboard-container">
+            <textarea name="keyboard" id="keyboard" placeholder="Type here..."></textarea>
+        </div>
+    </div>
 
     <script>
         const touchpad = document.getElementById('touchpad');
         const thumb = document.getElementById('thumb');
+        const leftClick = document.getElementById('leftClick');
+        const rightClick = document.getElementById('rightClick');
         let isDragging = false;
         let lastSentTime = 0;
-        const delay = 85; 
-        touchpad.addEventListener('touchstart', startDrag);
-        touchpad.addEventListener('touchmove', drag);
-        touchpad.addEventListener('touchend', endDrag);
-        touchpad.addEventListener('touchcancel', endDrag);
+        const delay = 50; // Daha hızlı yanıt için delay azaltıldı
 
-        function startDrag(event) {
-            event.preventDefault(); 
-            
-            isDragging = true;
+        // Mouse click events
+        leftClick.addEventListener('click', () => sendMouseClick('left'));
+        rightClick.addEventListener('click', () => sendMouseClick('right'));
+
+        function sendMouseClick(button) {
+            fetch('/mouse_click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `button=${button}`
+            });
         }
 
-        function drag(event) {
+        // Touchpad events with improved performance
+        const handleDrag = (e) => {
             if (isDragging) {
                 const now = Date.now();
                 if (now - lastSentTime >= delay) {
-                    const touchpadRect = touchpad.getBoundingClientRect();
-                    const thumbSize = thumb.getBoundingClientRect();
-                    const centerX = touchpadRect.left + touchpadRect.width / 2;
-                    const centerY = touchpadRect.top + touchpadRect.height / 2;
+                    const touch = e.touches[0];
+                    const rect = touchpad.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
                     
-                    let newX = event.touches[0].clientX - centerX;
-                    let newY = event.touches[0].clientY - centerY;
+                    let newX = touch.clientX - centerX;
+                    let newY = touch.clientY - centerY;
+                    
+                    // Improved movement calculation
+                    const sensitivity = 1.5;
+                    newX = Math.max(-150, Math.min(150, newX)) * sensitivity;
+                    newY = Math.max(-150, Math.min(150, newY)) * sensitivity;
 
-                    newX = Math.max(-150, Math.min(150, newX)); 
-                    newY = Math.max(-150, Math.min(150, newY)); 
-
-                    thumb.style.transform = `translate(${newX}px, ${newY}px)`;
+                    // Smooth thumb movement
+                    requestAnimationFrame(() => {
+                        thumb.style.transform = `translate(${newX/sensitivity}px, ${newY/sensitivity}px)`;
+                    });
 
                     sendMouseMovement(newX, newY);
-
                     lastSentTime = now;
                 }
             }
-        }
+        };
 
-        function endDrag(event) {
+        touchpad.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = true;
+        });
+
+        touchpad.addEventListener('touchmove', handleDrag, { passive: false });
+
+        touchpad.addEventListener('touchend', () => {
             isDragging = false;
-            thumb.style.transform = `translate(-50%, -50%)`; 
-        }
+            requestAnimationFrame(() => {
+                thumb.style.transform = 'translate(-50%, -50%)';
+            });
+        });
 
+        // Improved mouse movement function
         function sendMouseMovement(x, y) {
             fetch('/move_mouse', {
                 method: 'POST',
@@ -110,6 +208,22 @@
                 body: `x=${x}&y=${y}`
             });
         }
+
+        // Keyboard handling
+        const keyboard = document.getElementById('keyboard');
+        const sendKeyboard = (content) => {
+            fetch('/keyboard_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `content=${encodeURIComponent(content)}`
+            });
+        };
+
+        keyboard.addEventListener('input', (e) => {
+            sendKeyboard(keyboard.value);
+        });
     </script>
 </body>
 </html>
